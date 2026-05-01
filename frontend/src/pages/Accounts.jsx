@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
 import socket from '../utils/socket';
 import { Smartphone, CheckCircle, AlertTriangle, Loader2, LogOut } from 'lucide-react';
+import API_URL from '../config';
 
 const Accounts = () => {
   const [status, setStatus] = useState('DISCONNECTED');
   const [qrCodeUrl, setQrCodeUrl] = useState('');
 
   const fetchStatus = () => {
-    fetch('http://localhost:3001/api/status')
+    fetch(`${API_URL}/api/status`)
       .then(res => res.json())
       .then(data => {
         setStatus(data.status);
@@ -38,12 +39,12 @@ const Accounts = () => {
   }, []);
 
   const handleConnect = () => {
-    fetch('http://localhost:3001/api/start', { method: 'POST' });
+    fetch(`${API_URL}/api/start`, { method: 'POST' });
   };
 
   const handleLogout = () => {
     if (window.confirm('Are you sure you want to logout?')) {
-      fetch('http://localhost:3001/api/logout', { method: 'POST' })
+      fetch(`${API_URL}/api/logout`, { method: 'POST' })
         .then(() => fetchStatus());
     }
   };

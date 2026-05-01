@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Send, Image as ImageIcon, Paperclip, Save, FileText } from 'lucide-react';
 import socket from '../utils/socket';
+import API_URL from '../config';
 
 const Composer = () => {
   const [numbers, setNumbers] = useState('');
@@ -16,13 +17,13 @@ const Composer = () => {
   const [templateName, setTemplateName] = useState('');
 
   const fetchTemplates = () => {
-    fetch('http://localhost:3001/api/templates')
+    fetch(`${API_URL}/api/templates`)
       .then(res => res.json())
       .then(data => setTemplates(data));
   };
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/status')
+    fetch(`${API_URL}/api/status`)
       .then(res => res.json())
       .then(data => setConnectionStatus(data.status));
     
@@ -41,7 +42,7 @@ const Composer = () => {
       return;
     }
     try {
-      const res = await fetch('http://localhost:3001/api/templates', {
+      const res = await fetch(`${API_URL}/api/templates`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: templateName, content: message })
@@ -63,7 +64,7 @@ const Composer = () => {
     if (!numbers) return;
     setIsChecking(true);
     try {
-      const res = await fetch('http://localhost:3001/api/check', {
+      const res = await fetch(`${API_URL}/api/check`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ numbers })
@@ -95,7 +96,7 @@ const Composer = () => {
     
     setStatusMsg('Parsing CSV...');
     try {
-      const res = await fetch('http://localhost:3001/api/upload-csv', {
+      const res = await fetch(`${API_URL}/api/upload-csv`, {
         method: 'POST',
         body: formData
       });
@@ -128,7 +129,7 @@ const Composer = () => {
     setStatusMsg('Queuing campaign...');
     
     try {
-      const res = await fetch('http://localhost:3001/api/send', {
+      const res = await fetch(`${API_URL}/api/send`, {
         method: 'POST',
         body: formData
       });
@@ -182,7 +183,7 @@ const Composer = () => {
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
                 <a 
-                  href="http://localhost:3001/api/download-sample" 
+                  href={`${API_URL}/api/download-sample`} 
                   style={{ fontSize: '11px', color: 'var(--primary)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}
                   download
                 >

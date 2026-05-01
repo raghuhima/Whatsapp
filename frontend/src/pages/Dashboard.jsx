@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import socket from '../utils/socket';
 import { Send, CheckCircle, XCircle, Clock } from 'lucide-react';
+import API_URL from '../config';
 
 const Dashboard = () => {
   const [logs, setLogs] = useState([]);
@@ -8,7 +9,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     // Fetch historical logs
-    fetch('http://localhost:3001/api/logs')
+    fetch(`${API_URL}/api/logs`)
       .then(res => res.json())
       .then(data => {
         setLogs(data);

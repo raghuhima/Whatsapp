@@ -1,0 +1,23 @@
+services:
+  # Backend Web Service
+  - type: web
+    name: wp-tool-backend
+    runtime: node
+    repo: https://github.com/raghuhima/Whatsapp
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node index.js
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: PUPPETEER_SKIP_CHROMIUM_DOWNLOAD
+        value: "true"
+
+  # Frontend Static Site
+  - type: static
+    name: wp-tool-frontend
+    runtime: static
+    repo: https://github.com/raghuhima/Whatsapp
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    publishPath: dist

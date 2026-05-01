@@ -1,0 +1,19 @@
+# Root gitignore
+node_modules/
+dist/
+.DS_Store
+.env
+*.log
+
+# Backend specific
+backend/node_modules/
+backend/.wwebjs_auth/
+backend/.wwebjs_auth_test/
+backend/uploads/
+backend/logs.json
+
+# Frontend specific
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/*.local

@@ -1,0 +1,111 @@
+import React, { useEffect, useState } from 'react';
+import QRCode from 'qrcode';
+import socket from '../utils/socket';
+import { Smartphone, CheckCircle, AlertTriangle, Loader2, LogOut } from 'lucide-react';
+
+const Accounts = () => {
+  const [status, setStatus] = useState('DISCONNECTED');
+  const [qrCodeUrl, setQrCodeUrl] = useState('');
+
+  const fetchStatus = () => {
+    fetch('http://localhost:3001/api/status')
+      .then(res => res.json())
+      .then(data => {
+        setStatus(data.status);
+        if (data.qr) {
+          QRCode.toDataURL(data.qr, { margin: 1, width: 256, color: { dark: '#000', light: '#fff' } })
+            .then(url => setQrCodeUrl(url));
+        }
+      });
+  };
+
+  useEffect(() => {
+    fetchStatus();
+
+    socket.on('status', (data) => {
+      setStatus(data.status);
+    });
+
+    socket.on('qr', (qrString) => {
+      QRCode.toDataURL(qrString, { margin: 1, width: 256, color: { dark: '#000', light: '#fff' } })
+        .then(url => setQrCodeUrl(url));
+    });
+
+    return () => {
+      socket.off('status');
+      socket.off('qr');
+    };
+  }, []);
+
+  const handleConnect = () => {
+    fetch('http://localhost:3001/api/start', { method: 'POST' });
+  };
+
+  const handleLogout = () => {
+    if (window.confirm('Are you sure you want to logout?')) {
+      fetch('http://localhost:3001/api/logout', { method: 'POST' })
+        .then(() => fetchStatus());
+    }
+  };
+
+
+  return (
+    <div className="animate-fade-in">
+      <h1 className="page-title">Accounts & Connection</h1>
+      
+      <div className="glass-panel" style={{ maxWidth: '500px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+          <Smartphone size={24} className="text-primary" />
+          <h2 style={{ fontSize: '20px', fontWeight: '600' }}>WhatsApp Web Session</h2>
+        </div>
+
+        <div style={{ padding: '20px', background: 'rgba(15, 23, 42, 0.4)', borderRadius: '12px', textAlign: 'center' }}>
+          {status === 'CONNECTED' && (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+              <CheckCircle size={48} color="var(--success)" />
+              <h3 style={{ fontSize: '18px', color: 'var(--success)' }}>Account Connected</h3>
+              <p style={{ color: 'var(--text-muted)' }}>Your session is active and ready to send messages.</p>
+              <button 
+                className="btn btn-secondary" 
+                style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}
+                onClick={handleLogout}
+              >
+                <LogOut size={16} /> Logout Account
+              </button>
+            </div>
+          )}
+
+          {status === 'QR_READY' && qrCodeUrl && (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+              <h3 style={{ fontSize: '18px' }}>Scan QR Code</h3>
+              <p style={{ color: 'var(--text-muted)' }}>Open WhatsApp on your phone and link a device.</p>
+              <div style={{ padding: '10px', background: 'white', borderRadius: '12px' }}>
+                <img src={qrCodeUrl} alt="QR Code" width={200} height={200} />
+              </div>
+            </div>
+          )}
+
+          {status === 'INITIALIZING' && (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+              <Loader2 size={48} className="animate-spin" color="var(--primary)" />
+              <h3 style={{ fontSize: '18px' }}>Initializing Session...</h3>
+            </div>
+          )}
+
+          {status === 'DISCONNECTED' && (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+              <AlertTriangle size={48} color="var(--warning)" />
+              <h3 style={{ fontSize: '18px' }}>Not Connected</h3>
+              <p style={{ color: 'var(--text-muted)', marginBottom: '16px' }}>Connect your WhatsApp account to start sending messages.</p>
+              <button className="btn btn-primary" onClick={handleConnect}>
+                Connect Account
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Accounts;
